@@ -19,9 +19,12 @@ def main(path, savedir):
     if os.path.isdir(path):
         if path[-1]!='/':
             path=path+'/'
-        paths=glob.glob(path+'*')
+        paths=glob.glob(path+'*.pkl')
 
     print('paths: ', paths)
+
+    if savedir==None:
+        savedir=path+'videos'
 
 
     if not os.path.exists(savedir):
@@ -56,7 +59,7 @@ def main(path, savedir):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--src", type=str, default=0,  help="src file or directory", required=True)
-    parser.add_argument("-dir", "--savedir", type=str, required=True)
+    parser.add_argument("-dir", "--savedir", type=str)
     args=parser.parse_args()
     print('args=', args)
     main(args.src, args.savedir)
@@ -64,4 +67,5 @@ if __name__=='__main__':
 # python3 demo2video.py -f /home/carl/data_sawyer/block/11_09_2023_21_23_131.pkl --savedir  /home/carl/data_sawyer/block_videos
 # python3 demo2video.py -f /home/carl/data_sawyer/block --savedir  /home/carl/data_sawyer/block_videos
 # python3 demo2video.py -f /home/carl/data_sawyer/dclose --savedir  /home/carl/data_sawyer/videos_dclose
-# python3 demo2video.py -f /home/carl/data_sawyer/spoon_jan18  --savedir /home/carl/data_sawyer/videos_spoon
+# python3 demo2video.py -f /home/carl/data_sawyer/spoon_pick
+# python3 demo2video.py -f /home/carl/data_sawyer/dclose_3_15/other

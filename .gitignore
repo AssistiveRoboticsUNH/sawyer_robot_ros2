@@ -7,4 +7,5 @@
 # Not these files
 !.gitignore
 !readme2.md
+!readme2real.md
 !params_1.yaml

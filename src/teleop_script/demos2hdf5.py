@@ -156,7 +156,8 @@ if __name__=='__main__':
 
 # python3 demos2hdf5.py -f /home/carl/data_sawyer/block
 # python3 demos2hdf5.py -f /home/carl/data_sawyer/dclose
-# python3 demos2hdf5.py -f /home/carl/data_sawyer/spoon_hang
+# python3 demos2hdf5.py -f /home/carl/data_sawyer/spoon_pick/int3_29
 
-
+# python3 demos2hdf5.py -f /home/carl/data_sawyer/dclose_3_15/other
+    
 

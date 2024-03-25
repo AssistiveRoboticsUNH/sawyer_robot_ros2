@@ -23,29 +23,9 @@ from utils_ros import ROSInterface
 import beepy as beep
 import threading
 # v4l2-ctl --list-devices
+import imageio 
 
-beep_start = lambda : beep.beep('coin')
-beep_end= lambda : beep.beep('ready')
-
-
-def save_demo(savedir, msgs, imgs, grips, dt):
-    tosave={}
-
-    tosave['msgs']=msgs
-    tosave['imgs']=imgs
-    tosave['grips']=grips
  
-    N=len(msgs)
-    
-    now = datetime.datetime.now()
-    time_str=now.strftime("%m_%d_%Y_%H_%M")
-    # fn=savedir+time_str+'_'+str(dt)+'_'+str(N) +'.pkl'
-    fn=savedir+time_str+'_'+str(N) +'.pkl'
-    print(f'saving to {fn}')
-    with open(fn, 'wb') as f:
-        pickle.dump(tosave, f)
-
-
 def main(savedir):
     rclpy.init()
 
@@ -54,6 +34,13 @@ def main(savedir):
 
     if not os.path.isdir(savedir):
         os.mkdir(savedir)
+
+    now = datetime.datetime.now()
+    time_str=now.strftime("%m_%d_%Y_%H_%M")
+    # fn=savedir+time_str+'_'+str(dt)+'_'+str(N) +'.pkl'
+    video_path=savedir+time_str+'_rollout.mp4'
+ 
+    video_writer = imageio.get_writer(video_path, fps=20)
     
     
     urdf_path = os.getcwd() +'/'+'sawyer.urdf'  #'/home/carl/sawyer_robot_ros2/src/teleop_script/sawyer.urdf'
@@ -97,51 +84,16 @@ def main(savedir):
             print('image wrist None')
             continue
 
-        scale=0.5
+        scale=1.0
         image_wrist = cv2.resize(image_wrist, (int(image_wrist.shape[1]*scale), int(image_wrist.shape[0]*scale) ) , interpolation = cv2.INTER_AREA)
         image_front = cv2.resize(image_front, (int(image_front.shape[1]*scale), int(image_front.shape[0]*scale) ) , interpolation = cv2.INTER_AREA)
-
-        # image_wrist=cam_wrist.get_current_frame(scale=0.5)  
-        # image_front=cam_front.get_current_frame(scale=0.5) 
-        # print('shape: ', image_wrist.shape, image_front.shape)
-        msg=ros_interface.latest_joint_states
-        gripper_isopen=ros_interface.latest_gripper_state
-
-        if msg==None:
-            continue 
-        if len(msg.position)==1:
-            continue
-
-        if not ros_interface.record_msg ==None: 
-            if not ros_interface.record_msg.data: 
-                if started:
-                    print('recording stopped')
-                    tb=Thread(target=beep_end)
-                    tb.start()
-                    break
-                else: 
-                    print('recording not started')
-                    # continue
-            elif not started:
-                print('started')
-                tb=Thread(target=beep_start)
-                tb.start()
-                started=True
-                st=time.time()
-
-        # if not started and gripper_isopen:
-        #     print('started')
-        #     started=True
-        #     st=time.time()
-
-        if started:
-            msgs.append(msg)
-            imgs.append( (image_wrist, image_front) ) 
-            grips.append(gripper_isopen)
-        
+  
 
         image=np.concatenate([image_wrist, image_front], axis=1) 
-        cv2.imshow('frame',image)
+        bgr_img = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        video_writer.append_data(bgr_img)
+        
+        cv2.imshow('recording',image)
         if cv2.waitKey(1) == 27: 
             print('UI closed')
             break  # esc to quit
@@ -155,7 +107,8 @@ def main(savedir):
     dt=time.time()-st
     print( len(msgs), dt, len(msgs)/dt )
 
-    save_demo(savedir, msgs, imgs, grips, dt) 
+    video_writer.close()
+    
     print('done')
     rclpy.shutdown()
 
@@ -169,6 +122,5 @@ if __name__=='__main__':
     main(args.savedir)
 
 
-# python3 record_data.py --savedir /home/carl/data_sawyer/spoon_jan18
-# python3 record_data.py --savedir /home/carl/data_sawyer/spoon_hang
-# python3 record_data.py --savedir /home/carl/data_sawyer/dclose_3_15
+# python3 record_video.py --savedir /home/carl/data_sawyer/spoon_pick
+    
