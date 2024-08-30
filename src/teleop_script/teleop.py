@@ -43,10 +43,15 @@ mode = lambda msg: msg.buttons[6] == 0
 forward = lambda msg: (-msg.axes[1] / 5) * mode(msg)
 right = lambda msg: (-(msg.axes[0] - 0.12488976866006851 * 0) / 5) * mode(msg)
 up = lambda msg: (msg.axes[2] / 5) * mode(msg)
-roll = lambda msg: (msg.axes[0] / 1) * (1 - mode(msg))
-pitch = lambda msg: (-msg.axes[1] / 1) * (1 - mode(msg))
-yaw = lambda msg: (msg.axes[2] / 1) * (1 - mode(msg))
+# roll = lambda msg: (msg.axes[0] / 1) * (1 - mode(msg))
+# pitch = lambda msg: (-msg.axes[1] / 1) * (1 - mode(msg))
+# yaw = lambda msg: (msg.axes[2] / 1) * (1 - mode(msg))
 
+rot_sens = 0.4
+
+roll = lambda msg: -msg.axes[4] * rot_sens
+pitch = lambda msg: -msg.axes[3] * rot_sens
+yaw = lambda msg: msg.axes[5] * rot_sens
 
 def run():
     rclpy.init()
